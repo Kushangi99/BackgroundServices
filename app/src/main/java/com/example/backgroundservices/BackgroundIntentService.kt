@@ -14,6 +14,7 @@ class BackgroundIntentService : IntentService("MyIntentService") {
         Log.d(TAG, "onCreate: Thread name: " + Thread.currentThread().name)
     }
 
+    //Receives intent ( data ) to execute tasks in background or worker thread
     override fun onHandleIntent(intent: Intent?) {
         Log.d(TAG, "onHandleIntent: MyIntentService")
         Log.d(TAG, "onHandleIntent: Thread name: " + Thread.currentThread().name)
