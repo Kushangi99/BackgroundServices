@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         for (song in Playlist.songs) {
             val intent = Intent(this@MainActivity, BackgroundIntentService::class.java)
             intent.putExtra(MESSAGE_KEY, song)
-            startService(intent)
+            BackgroundIntentService.enqueueWork(this, intent)
         }
     }
 
