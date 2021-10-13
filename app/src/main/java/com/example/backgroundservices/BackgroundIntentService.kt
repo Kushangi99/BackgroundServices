@@ -50,7 +50,8 @@ class BackgroundIntentService : IntentService("MyIntentService") {
         private const val TAG = "MyTag"
     }
 
-    init {
-        setIntentRedelivery(true)
-    }
+    //Works internally like START_REDELIVER_INTENT of Service
+//    init {
+//        setIntentRedelivery(true)
+//    }
 }
