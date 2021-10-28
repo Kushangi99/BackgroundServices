@@ -8,36 +8,45 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.example.backgroundservices.MainActivity.Companion.INTENT_SERVICE
+import android.R
+import java.util.*
+import androidx.annotation.NonNull
+import androidx.work.ListenableWorker
+import com.example.backgroundservices.MainActivity.Companion.WORKER_TAG
 
-class WorkManagerService(context: Context, workerParams: WorkerParameters) :
-    Worker(context, workerParams) {
-
+class WorkManagerService(var context: Context, var workerParameters: WorkerParameters) :
+    Worker(context, workerParameters) {
+    private var mRandomNumber = 0
+    private val mIsRandomGeneratorOn = true
+    private val MIN = 0
+    private val MAX = 100
     override fun doWork(): Result {
-        val songName = inputData.getString(INTENT_SERVICE)
-        downloadSong(songName)
-//        sendMessageToUi(songName)
-        val outputData = workDataOf(MainActivity.MESSAGE_KEY to songName)
-        return Result.success(outputData)
-    }
-
-    private fun downloadSong(songName: String?) {
-        Log.d(TAG, "run: staring download")
-        if (isStopped) return
-        try {
-            Thread.sleep(4000)
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
-        Log.d(TAG, "downloadSong: $songName Downloaded...")
+        Log.d(WORKER_TAG, "Work Started")
+        startRandomNumberGenerator()
+        return Result.success()
     }
 
     override fun onStopped() {
         super.onStopped()
-            Log.d(TAG, "onStopped: Worker")
-            Log.d(TAG, "onStopped: Thread name: " + Thread.currentThread().name)
+        Log.i(WORKER_TAG, "Worker has been cancelled")
     }
 
-    companion object {
-        private const val TAG = "MyTag"
+    private fun startRandomNumberGenerator() {
+        var i = 0
+        while (i < 5 && !isStopped) {
+            try {
+                Thread.sleep(1000)
+                if (mIsRandomGeneratorOn) {
+                    mRandomNumber = Random().nextInt(MAX) + MIN
+                    Log.i(
+                        WORKER_TAG,
+                        "Thread id: " + Thread.currentThread().id + ", Random Number: " + mRandomNumber
+                    )
+                    i++
+                }
+            } catch (e: InterruptedException) {
+                Log.i(WORKER_TAG, "Thread Interrupted")
+            }
+        }
     }
 }
