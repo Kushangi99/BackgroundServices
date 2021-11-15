@@ -1,21 +1,16 @@
 package com.example.backgroundservices
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
-import com.example.backgroundservices.MainActivity.Companion.INTENT_SERVICE
-import android.R
-import java.util.*
-import androidx.annotation.NonNull
-import androidx.work.ListenableWorker
 import com.example.backgroundservices.MainActivity.Companion.WORKER_TAG
+import java.util.*
 
-class WorkManagerService(var context: Context, var workerParameters: WorkerParameters) :
+class WorkManagerService(context: Context, workerParameters: WorkerParameters) :
     Worker(context, workerParameters) {
+
     private var mRandomNumber = 0
     private val mIsRandomGeneratorOn = true
     private val MIN = 0
@@ -23,7 +18,8 @@ class WorkManagerService(var context: Context, var workerParameters: WorkerParam
     override fun doWork(): Result {
         Log.d(WORKER_TAG, "Work Started")
         startRandomNumberGenerator()
-        return Result.success()
+        val output = Data.Builder().putString(WORKER_TAG,"Random numbers generated").build()
+        return Result.success(output)
     }
 
     override fun onStopped() {
@@ -31,7 +27,7 @@ class WorkManagerService(var context: Context, var workerParameters: WorkerParam
         Log.i(WORKER_TAG, "Worker has been cancelled")
     }
 
-    private fun startRandomNumberGenerator() {
+    private fun startRandomNumberGenerator():Int {
         var i = 0
         while (i < 5 && !isStopped) {
             try {
@@ -48,5 +44,6 @@ class WorkManagerService(var context: Context, var workerParameters: WorkerParam
                 Log.i(WORKER_TAG, "Thread Interrupted")
             }
         }
+        return mRandomNumber
     }
 }
