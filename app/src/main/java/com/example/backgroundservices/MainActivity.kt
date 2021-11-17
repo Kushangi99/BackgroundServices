@@ -1,11 +1,16 @@
 package com.example.backgroundservices
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.withStyledAttributes
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
@@ -13,64 +18,32 @@ import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-    private var mLog: TextView? = null
-    private var mProgressBar: ProgressBar? = null
-    private lateinit var workManager: WorkManager
-    private lateinit var workRequest: PeriodicWorkRequest
+    private var alarmManager:AlarmManager?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initViews()
-        workManager = WorkManager.getInstance(applicationContext)
-
-            workRequest = PeriodicWorkRequest.Builder(
-                WorkManagerService::class.java,
-                15,
-                TimeUnit.MINUTES
-            )
-                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.METERED).build())
-                .build()
+        alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager?
     }
 
-    fun runCode(v: View?) {
-        Log.d(TAG, "Running code")
-        mLog!!.append("Running code\n")
-        displayProgressBar(true)
-        workManager.enqueue(workRequest)
-        if (this::workRequest.isInitialized) {
-            workManager.getWorkInfoByIdLiveData(workRequest.id).observe(this,
-                { workInfo ->
-                    if (workInfo != null) {
-                        println("####status-> ${workInfo.state}")
-                        val wasSuccess = workInfo.outputData.getString(WORKER_TAG)
-                        if (wasSuccess!=null) {
-                            mLog!!.append("$wasSuccess")
-                            mProgressBar!!.visibility = View.INVISIBLE
-                        }
-                    }
-                })
-        }
+    fun startAlarm(v: View?) {
+        Toast.makeText(this, "Alarm Started", Toast.LENGTH_SHORT).show()
+        val intent = Intent()
+        intent.action = "com.lalit.myown.receiver.Message"
+        intent.addCategory("android.intent.category.DEFAULT")
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent,0)
+        alarmManager?.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),1000*30, pendingIntent)
     }
 
-    private fun initViews() {
-        mLog = findViewById(R.id.tvLog)
-        mProgressBar = findViewById(R.id.progress_bar)
+    fun stopAlarm(v: View?) {
+        Toast.makeText(this, "Alarm Stopped", Toast.LENGTH_SHORT).show()
+        val intent = Intent()
+        intent.action = "com.StandUp"
+        intent.addCategory("android.intent.category.DEFAULT")
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent,0)
+        alarmManager?.cancel(pendingIntent)
     }
 
-    fun clearOutput(v: View?) {
-        workManager.cancelWorkById(workRequest.id)
-        mLog!!.text = ""
-        displayProgressBar(false)
-    }
-
-    private fun displayProgressBar(display: Boolean) {
-        if (display) {
-            mProgressBar!!.visibility = View.VISIBLE
-        } else {
-            mProgressBar!!.visibility = View.INVISIBLE
-        }
-    }
 
     companion object {
         private const val TAG = "MyTag"

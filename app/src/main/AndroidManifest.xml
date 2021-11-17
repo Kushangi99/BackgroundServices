@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.backgroundservices">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.s">
         <activity
-            android:name="com.example.backgroundservices.MainActivity"
+            android:name=".StandUpActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,9 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--        <service android:name="com.example.backgroundservices.DownloadService"/>-->
-<!--        <service android:name="com.example.backgroundservices.BackgroundIntentService"-->
-<!--            android:permission="android.permission.BIND_JOB_SERVICE"/>-->
+        <receiver android:name=".StandUp"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.lalit.myown.receiver.Message" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
